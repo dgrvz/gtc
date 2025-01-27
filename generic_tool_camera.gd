@@ -60,56 +60,55 @@ func _ready() -> void:
 	assert(target.direction != null, "Target node should implement 'direction' field")
 	
 	interpolator = InterpolationManager.new(
-												target,
-												$".",
-												rotation_interpolation_mode,
-												move_interpolation_mode,
-												unlock_horizontal_rotation_axis
-											)
+		target,
+		$".",
+		rotation_interpolation_mode,
+		move_interpolation_mode,
+		unlock_horizontal_rotation_axis
+	)
 	
 	mouse_handler = MouseHandler.new(
-												target,
-												$".",
-												horizontal_mouse_sensitivity,
-												vertical_mouse_sensitivity
-									)
+		target,
+		$".",
+		horizontal_mouse_sensitivity,
+		vertical_mouse_sensitivity
+	)
 	
 	direction_handler = DirectionHandler.new(
-												target,
-												$".",
-												mouse_handler
-											)
+		target,
+		$".",
+		mouse_handler
+	)
 	
 	configurator = Configurator.new(
-												target,
-												$".",
-												mouse_handler,
-												direction_handler,
-												interpolator
-									)
+		target,
+		$".",
+		mouse_handler,
+		direction_handler,
+		interpolator
+	)
 	
 	configurator.setup_default_position()
 	configurator.configure_follow_mode()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and follow_mode != DirectionHandler.FollowMode.DIRECTION_MODE\
-		and (without_key or Input.is_action_pressed(capture_key)):
+	and (without_key or Input.is_action_pressed(capture_key)):
 		
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		mouse_handler.store_mouse_input_position(position)
 		mouse_handler.save_mouse_velocity(event)
 		
-		var desired_position_vector: Vector3 =\
-							mouse_handler.get_rotated_radius_vector(
-																		mouse_handler.mouse_move_x,
-																		mouse_handler.mouse_move_y
-																	)
+		var desired_position_vector: Vector3 = mouse_handler.get_rotated_radius_vector(
+			mouse_handler.mouse_move_x,
+			mouse_handler.mouse_move_y
+		)
 														
 		mouse_handler.calculate_inertia_velocity(desired_position_vector)
 		interpolator.interpolate_position(
-											desired_position_vector,
-											position_coefficient * mouse_position_coefficient
-										)
+			desired_position_vector,
+			position_coefficient * mouse_position_coefficient
+		)
 		interpolator.interpolate_rotation(rotation_coefficient * mouse_rotation_coefficient)
 
 func _physics_process(delta: float) -> void:

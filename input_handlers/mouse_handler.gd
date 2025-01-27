@@ -21,10 +21,8 @@ func _init(t_o: Node3D, f_o: Node3D, h_sens: float, v_sens: float) -> void:
 
 func get_rotated_radius_vector(horizontal_radians: float, vertical_radians: float) -> Vector3:
 									
-	var phi: float = InterpolationManager.point_to_radians(
-															follower_object.position.x,
-															follower_object.position.z
-														)
+	var phi: float =\
+	InterpolationManager.point_to_radians(follower_object.position.x,follower_object.position.z)
 	
 	var theta: float = acos(follower_object.position.y / follower_object.distance)
 	
@@ -35,15 +33,15 @@ func get_rotated_radius_vector(horizontal_radians: float, vertical_radians: floa
 	if follower_object.unlock_horizontal_position_axis:
 		x *= sin(theta + vertical_radians)
 		y = clamp(
-					follower_object.distance * cos(theta - vertical_radians),
-					follower_object.min_vertical_angle,
-					follower_object.max_vertical_angle
-				)
+			follower_object.distance * cos(theta - vertical_radians),
+			follower_object.min_vertical_angle,
+			follower_object.max_vertical_angle
+		)
 		z *= sin(theta + vertical_radians)
 	
 	return Vector3(x, y, z)
 
-func delay_before_inertion(weight) -> void:
+func delay_before_inertion(weight: float) -> void:
 	# NOTE necessarily call this before inertia
 	last_mouse_velocity = lerp(last_mouse_velocity, 0.0, weight)
 
@@ -58,11 +56,11 @@ func store_mouse_input_position(pos: Vector3) -> void:
 
 func apply_mouse_inertion(vector: Vector3) -> Vector3:
 	if follower_object.mouse_inertia\
-		and inertia_velocity.length() > follower_object.minimal_velocity\
-		and last_mouse_velocity < 0.1:
+	and inertia_velocity.length() > follower_object.minimal_velocity\
+	and last_mouse_velocity < 0.1:
 		
 		var perpendicular_inertia_velocity: Vector3 =\
-												Vector3(-inertia_velocity.z, 0, inertia_velocity.x)
+		Vector3(-inertia_velocity.z, 0, inertia_velocity.x)
 		
 		if mouse_move_x > 0:
 			inertia_velocity += perpendicular_inertia_velocity / follower_object.perpendicular_weight

@@ -10,16 +10,17 @@ var target_object: Node3D
 var follower_object: Node3D
 var unlock_horizontal_rotation_axis: bool
 
-var control_1
-var control_2
+#bezier controls
+var control_1: Variant
+var control_2: Variant
 
 func _init(
-				t_o: Node3D,
-				f_o: Node3D,
-				r_mode: RotationInterpolationMode,
-				m_mode: MoveInterpolationMode,
-				h_axis: bool
-		) -> void:
+	t_o: Node3D,
+	f_o: Node3D,
+	r_mode: RotationInterpolationMode,
+	m_mode: MoveInterpolationMode,
+	h_axis: bool
+	) -> void:
 	
 	target_object = t_o
 	follower_object = f_o
@@ -30,10 +31,12 @@ func _init(
 func interpolate_position(position_vector: Vector3, weight: float) -> void:
 	match move_interpolation_mode:
 		MoveInterpolationMode.LINEAR_INTERPOLATE:
-			follower_object.position = linear(weight, follower_object.position, position_vector)
+			follower_object.position =\
+			interpolate("linear", weight, follower_object.position, position_vector)
 		
 		MoveInterpolationMode.BEZIER_INTERPOLATE:
-			follower_object.position = bezier(weight, follower_object.position, position_vector)
+			follower_object.position =\
+			interpolate("bezier", weight, follower_object.position, position_vector)
 
 func interpolate_rotation(weight: float) -> void:
 	match rotation_interpolation_mode:
@@ -44,53 +47,82 @@ func interpolate_rotation(weight: float) -> void:
 			if unlock_horizontal_rotation_axis:
 				all_axis_rotate_interpolation("linear", weight)
 			else:
-				follower_object.rotation.y = linear(weight, follower_object.rotation.y)
+				follower_object.rotation.y =\
+				interpolate("linear", weight, follower_object.rotation.y, get_current_radians())
 		
 		RotationInterpolationMode.BEZIER_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
 				all_axis_rotate_interpolation("bezier", weight)
 			else:
-				var radians = get_current_radians()
-				
-				# WARNING
+				# WARNING BUG
 				# fix "camera panic" when trigonometric circle moves from PI to -PI and vice versa
-				if (follower_object.rotation.y < -0.7 and 0.7 < radians):
+				if (follower_object.rotation.y < -0.7 and 0.7 < get_current_radians()):
 					follower_object.rotation.y =\
-											linear(weight, PI + (PI + follower_object.rotation.y))
-				elif (radians < -0.7 and 0.7 < follower_object.rotation.y):
+					interpolate(
+						"linear",
+						weight*0.5,
+						PI + (PI + follower_object.rotation.y),
+						get_current_radians()
+					)
+				elif (get_current_radians() < -0.7 and 0.7 < follower_object.rotation.y):
 					follower_object.rotation.y =\
-											linear(weight, -PI + (-PI + follower_object.rotation.y))
+					interpolate(
+						"linear",
+						weight*0.5,
+						-PI + (-PI + follower_object.rotation.y),
+						get_current_radians()
+					)
 				
-				follower_object.rotation.y = bezier(weight, follower_object.rotation.y, radians)
+				follower_object.rotation.y =\
+				interpolate("bezier", weight, follower_object.rotation.y, get_current_radians())
 
-func all_axis_rotate_interpolation(function, weight) -> void:
-	var b: Basis = get_basis_looking_at_target()
-	for v in range(3):
-		follower_object.basis[v] = call(function, weight, follower_object.basis[v], b[v])
+func all_axis_rotate_interpolation(method: String, weight: float) -> void:
+	var b: Basis = _get_basis_looking_at_target()
+	for v: int in range(3):
+		follower_object.basis[v] = interpolate(method, weight, follower_object.basis[v], b[v])
 
-func linear(weight, start, end = Vector3.ZERO):
-	if is_instance_of(start, TYPE_FLOAT):
-		return lerp_angle(start, get_current_radians(), weight)
-	elif is_instance_of(start, TYPE_VECTOR3):
-		return start.lerp(end, weight)
+func interpolate(method: String, weight: float, start: Variant, end: Variant) -> Variant:
+	if method == "bezier":
+		_setup_bezier_controls(start, end)
+	var m: Callable = _get_interpolation_method(method, start)
+	return m.call(weight, start, end)
 
-func bezier(weight, start, end):
-	setup_bezier_controls(start, end)
-	if is_instance_of(start, TYPE_FLOAT):
-		return bezier_interpolate(start, control_1, control_2, end, weight)
-	elif is_instance_of(start, TYPE_VECTOR3):
-		return start.bezier_interpolate(control_1, control_2, end, weight)
+func _get_interpolation_method(name: String, start) -> Callable:
+	var methods: Dictionary = {
+		"linear": {
+			TYPE_FLOAT: _linear_type_float,
+			TYPE_VECTOR3: _linear_type_vector3
+		},
+		"bezier": {
+			TYPE_FLOAT: _bezier_type_float,
+			TYPE_VECTOR3: _bezier_type_vector3
+		}
+	}
+	return methods.get(name).get(typeof(start))
 
-func get_basis_looking_at_target() -> Basis:
+func _linear_type_float(weight: float, start: float, end: float) -> float:
+	return lerp_angle(start, end, weight)
+
+func _linear_type_vector3(weight: float, start: Vector3, end: Vector3) -> Vector3:
+	return start.lerp(end, weight)
+
+func _bezier_type_float(weight: float, start: float, end: float) -> float:
+	return bezier_interpolate(start, control_1, control_2, end, weight)
+
+func _bezier_type_vector3(weight: float, start: Vector3, end: Vector3) -> Vector3:
+	return start.bezier_interpolate(control_1, control_2, end, weight)
+
+func _get_basis_looking_at_target() -> Basis:
 	var forward: Vector3 =\
-					target_object.global_transform.origin - follower_object.global_transform.origin
+	target_object.global_transform.origin - follower_object.global_transform.origin
+	
 	var v_z: Vector3 = -forward.normalized()
 	var v_x: Vector3 = Vector3.UP.cross(v_z)
 	var v_y: Vector3 = v_z.cross(v_x.normalized())
 	
 	return Basis(v_x, v_y, v_z)
 
-func setup_bezier_controls(start, end) -> void:
+func _setup_bezier_controls(start: Variant, end: Variant) -> void:
 	control_1 = start + 0.1 * (end - start)
 	control_2 = end - 0.9 * (end - start)
 
