@@ -15,15 +15,11 @@ var control_1: Variant
 var control_2: Variant
 
 func _init(
-	t_o: Node3D,
-	f_o: Node3D,
 	r_mode: RotationInterpolationMode,
 	m_mode: MoveInterpolationMode,
 	h_axis: bool
 	) -> void:
 	
-	target_object = t_o
-	follower_object = f_o
 	rotation_interpolation_mode = r_mode
 	move_interpolation_mode = m_mode
 	unlock_horizontal_rotation_axis = h_axis
@@ -84,10 +80,10 @@ func all_axis_rotate_interpolation(method: String, weight: float) -> void:
 func interpolate(method: String, weight: float, start: Variant, end: Variant) -> Variant:
 	if method == "bezier":
 		_setup_bezier_controls(start, end)
-	var m: Callable = _get_interpolation_method(method, start)
+	var m: Callable = _get_interpolation_method(method, typeof(start))
 	return m.call(weight, start, end)
 
-func _get_interpolation_method(name: String, start) -> Callable:
+func _get_interpolation_method(name: String, type: int) -> Callable:
 	var methods: Dictionary = {
 		"linear": {
 			TYPE_FLOAT: _linear_type_float,
@@ -98,7 +94,7 @@ func _get_interpolation_method(name: String, start) -> Callable:
 			TYPE_VECTOR3: _bezier_type_vector3
 		}
 	}
-	return methods.get(name).get(typeof(start))
+	return methods.get(name).get(type)
 
 func _linear_type_float(weight: float, start: float, end: float) -> float:
 	return lerp_angle(start, end, weight)
@@ -125,6 +121,12 @@ func _get_basis_looking_at_target() -> Basis:
 func _setup_bezier_controls(start: Variant, end: Variant) -> void:
 	control_1 = start + 0.1 * (end - start)
 	control_2 = end - 0.9 * (end - start)
+
+func set_target(target: Node3D) -> void:
+	target_object = target
+
+func set_follower(follower: Node3D) -> void:
+	follower_object = follower
 
 func get_current_radians() -> float:
 	return point_to_radians(follower_object.position.x, follower_object.position.z)
