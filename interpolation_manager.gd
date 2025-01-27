@@ -30,17 +30,10 @@ func _init(
 func interpolate_position(position_vector: Vector3, weight: float) -> void:
 	match move_interpolation_mode:
 		MoveInterpolationMode.LINEAR_INTERPOLATE:
-			follower_object.position = follower_object.position.lerp(position_vector, weight)
+			follower_object.position = linear(weight, follower_object.position, position_vector)
 		
 		MoveInterpolationMode.BEZIER_INTERPOLATE:
-			setup_bezier_controls(follower_object.position, position_vector)
-			follower_object.position =\
-						follower_object.position.bezier_interpolate(
-																		control_1,
-																		control_2,
-																		position_vector,
-																		weight
-																	)
+			follower_object.position = bezier(weight, follower_object.position, position_vector)
 
 func interpolate_rotation(weight: float) -> void:
 	match rotation_interpolation_mode:
@@ -49,71 +42,48 @@ func interpolate_rotation(weight: float) -> void:
 			
 		RotationInterpolationMode.LINEAR_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
-				var direction_and_distance: Vector3 =\
-					target_object.global_transform.origin - follower_object.global_transform.origin
-				var b: Basis = get_basis_looking_at(direction_and_distance)
-				for v in range(3):
-					follower_object.basis[v] = follower_object.basis.x.lerp(b[v], weight)
+				all_axis_rotation("linear", weight)
 			else:
-				follower_object.rotation.y =\
-									lerp_angle(
-													follower_object.rotation.y,
-													point_to_radians(
-																		follower_object.position.x,
-																		follower_object.position.z
-																	),
-													weight
-												)
+				follower_object.rotation.y = linear(weight, follower_object.rotation.y)
 		
 		RotationInterpolationMode.BEZIER_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
-				var direction_and_distance: Vector3 =\
-					target_object.global_transform.origin - follower_object.global_transform.origin
-				var b: Basis = get_basis_looking_at(direction_and_distance)
-				
-				for v in range(3):
-					setup_bezier_controls(b[v], follower_object.global_transform.basis[v])
-					follower_object.basis[v] =\
-										follower_object.basis[v].bezier_interpolate(
-																						control_1,
-																						control_2,
-																						b[v],
-																						weight
-																					)
+				all_axis_rotation("bezier", weight)
 			else:
-				var desired_rotation = point_to_radians(
-															follower_object.position.x,
-															follower_object.position.z
-														)
+				var radians = get_current_radians()
 				
 				# WARNING
 				# fix "camera panic" when trigonometric circle moves from PI to -PI and vice versa
-				if (follower_object.rotation.y < -0.7 and 0.7 < desired_rotation):
+				if (follower_object.rotation.y < -0.7 and 0.7 < radians):
 					follower_object.rotation.y =\
-											lerp_angle(
-															PI + (PI + follower_object.rotation.y),
-															desired_rotation,
-															weight
-														)
-				elif (desired_rotation < -0.7 and 0.7 < follower_object.rotation.y):
+											linear(weight, PI + (PI + follower_object.rotation.y))
+				elif (radians < -0.7 and 0.7 < follower_object.rotation.y):
 					follower_object.rotation.y =\
-											lerp_angle(
-															-PI + (-PI + follower_object.rotation.y),
-															desired_rotation,
-															weight
-														)
+											linear(weight, -PI + (-PI + follower_object.rotation.y))
 				
-				setup_bezier_controls(follower_object.rotation.y, desired_rotation)
-				follower_object.rotation.y = bezier_interpolate(
-																	follower_object.rotation.y,
-																	control_1,
-																	control_2,
-																	desired_rotation,
-																	weight
-																)
+				follower_object.rotation.y = bezier(weight, follower_object.rotation.y, radians)
 
-func get_basis_looking_at(pos: Vector3) -> Basis:
-	var forward: Vector3 = pos
+func all_axis_rotation(function, weight) -> void:
+	var b: Basis = get_basis_looking_at_target()
+	for v in range(3):
+		follower_object.basis[v] = call(function, weight, follower_object.basis[v], b[v])
+
+func linear(weight, start, end = Vector3.ZERO):
+	if is_instance_of(start, TYPE_FLOAT):
+		return lerp_angle(start, get_current_radians(), weight)
+	elif is_instance_of(start, TYPE_VECTOR3):
+		return start.lerp(end, weight)
+
+func bezier(weight, start, end):
+	setup_bezier_controls(start, end)
+	if is_instance_of(start, TYPE_FLOAT):
+		return bezier_interpolate(start, control_1, control_2, end, weight)
+	elif is_instance_of(start, TYPE_VECTOR3):
+		return start.bezier_interpolate(control_1, control_2, end, weight)
+
+func get_basis_looking_at_target() -> Basis:
+	var forward: Vector3 =\
+					target_object.global_transform.origin - follower_object.global_transform.origin
 	var v_z: Vector3 = -forward.normalized()
 	var v_x: Vector3 = Vector3.UP.cross(v_z)
 	var v_y: Vector3 = v_z.cross(v_x.normalized())
@@ -123,6 +93,9 @@ func get_basis_looking_at(pos: Vector3) -> Basis:
 func setup_bezier_controls(start, end) -> void:
 	control_1 = start + 0.1 * (end - start)
 	control_2 = end - 0.9 * (end - start)
+
+func get_current_radians() -> float:
+	return point_to_radians(follower_object.position.x, follower_object.position.z)
 
 static func point_to_radians(x: float, y: float) -> float:
 	return atan2(x, y)

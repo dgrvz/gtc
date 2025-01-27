@@ -101,8 +101,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 		var desired_position_vector: Vector3 =\
 							mouse_handler.get_rotated_radius_vector(
-																		global_position,
-																		target.global_position,
 																		mouse_handler.mouse_move_x,
 																		mouse_handler.mouse_move_y
 																	)

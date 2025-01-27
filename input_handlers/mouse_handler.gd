@@ -19,23 +19,18 @@ func _init(t_o: Node3D, f_o: Node3D, h_sens: float, v_sens: float) -> void:
 	horizontal_mouse_sensitivity = h_sens
 	vertical_mouse_sensitivity = v_sens
 
-func get_rotated_radius_vector(
-									point_on_sphere: Vector3,
-									center_of_sphere: Vector3,
-									horizontal_radians: float,
-									vertical_radians: float
-								) -> Vector3:
+func get_rotated_radius_vector(horizontal_radians: float, vertical_radians: float) -> Vector3:
 									
 	var phi: float = InterpolationManager.point_to_radians(
-															point_on_sphere.z - center_of_sphere.z,
-															point_on_sphere.x - center_of_sphere.x
+															follower_object.position.x,
+															follower_object.position.z
 														)
 	
-	var theta: float = acos((point_on_sphere.y - center_of_sphere.y) / follower_object.distance)
+	var theta: float = acos(follower_object.position.y / follower_object.distance)
 	
-	var x: float = follower_object.distance * cos(phi + horizontal_radians)
+	var x: float = follower_object.distance * sin(phi - horizontal_radians)
 	var y: float = follower_object.height_offset
-	var z: float = follower_object.distance * sin(phi + horizontal_radians)
+	var z: float = follower_object.distance * cos(phi - horizontal_radians)
 	
 	if follower_object.unlock_horizontal_position_axis:
 		x *= sin(theta + vertical_radians)
@@ -83,12 +78,5 @@ func apply_mouse_inertion(vector: Vector3) -> Vector3:
 
 func calculate_inertia_velocity(next_radius_vector: Vector3) -> void:
 	if follower_object.mouse_inertia:
-		var current_radius_vector: Vector3 =\
-										get_rotated_radius_vector(
-																	follower_object.global_position,
-																	target_object.global_position,
-																	0,
-																	0
-																)
-		
+		var current_radius_vector: Vector3 = get_rotated_radius_vector(0, 0)
 		inertia_velocity = next_radius_vector - current_radius_vector
