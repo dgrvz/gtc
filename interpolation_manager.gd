@@ -42,13 +42,13 @@ func interpolate_rotation(weight: float) -> void:
 			
 		RotationInterpolationMode.LINEAR_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
-				all_axis_rotation("linear", weight)
+				all_axis_rotate_interpolation("linear", weight)
 			else:
 				follower_object.rotation.y = linear(weight, follower_object.rotation.y)
 		
 		RotationInterpolationMode.BEZIER_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
-				all_axis_rotation("bezier", weight)
+				all_axis_rotate_interpolation("bezier", weight)
 			else:
 				var radians = get_current_radians()
 				
@@ -63,7 +63,7 @@ func interpolate_rotation(weight: float) -> void:
 				
 				follower_object.rotation.y = bezier(weight, follower_object.rotation.y, radians)
 
-func all_axis_rotation(function, weight) -> void:
+func all_axis_rotate_interpolation(function, weight) -> void:
 	var b: Basis = get_basis_looking_at_target()
 	for v in range(3):
 		follower_object.basis[v] = call(function, weight, follower_object.basis[v], b[v])
