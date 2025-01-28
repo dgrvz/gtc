@@ -9,6 +9,7 @@ extends Resource
 @export var position_interpolator_type: PositionInterpolatorFactory.PositionInterpolatorType
 @export var follow_mode: VectorHandler.FollowMode
 @export var main_remembered_position: VectorHandler.MainRememberedPosition # works only with BOTH follow mode
+@export var inertia_processor_type: InertiaFactory.InertiaProcessorType
 
 @export_subgroup("Horizontal axis")
 @export var unlock_horizontal_position_axis: bool = false

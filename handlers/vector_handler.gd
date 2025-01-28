@@ -6,10 +6,10 @@ enum MainRememberedPosition {DIRECTION, USERINPUT}
 
 var target_object: Node3D
 var follower_object: Node3D
-var inertia: InertiaProcessor
+var inertia: IInertiaProcessor
 var mouse_cache: MouseCache
 
-func _init(t_o: Node3D, f_o: Node3D, i: InertiaProcessor, m_cache) -> void:
+func _init(t_o: Node3D, f_o: Node3D, i: IInertiaProcessor, m_cache) -> void:
 	target_object = t_o
 	follower_object = f_o
 	inertia = i

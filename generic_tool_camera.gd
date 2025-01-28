@@ -13,7 +13,7 @@ var vector_handler: VectorHandler
 var mouse_cache: MouseCache
 var _position_interpolator: IPositionInterpolator
 var _rotation_interpolator: IRotationInterpolator
-var _inertia_processor: InertiaProcessor
+var _inertia_processor: IInertiaProcessor
 
 func _ready() -> void:
 	assert(target != null, "Choose target node in settings")
@@ -41,7 +41,8 @@ func _ready() -> void:
 	add_child(mouse_cache)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and camera_settings.follow_mode != VectorHandler.FollowMode.DIRECTION_MODE\
+	if event is InputEventMouseMotion\
+	and camera_settings.follow_mode != VectorHandler.FollowMode.DIRECTION_MODE\
 	and (camera_settings.without_key or Input.is_action_pressed(camera_settings.capture_key)):
 		
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -71,13 +72,14 @@ func _physics_process(delta: float) -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		
 		var desired_position_vector: Vector3 = vector_handler.get_position_from_direction()
-		var p_coefficient: float = 60 * delta * camera_settings.position_coefficient * camera_settings.keys_position_coefficient
-		var r_coefficient: float = 60 * delta * camera_settings.rotation_coefficient * camera_settings.keys_rotation_coefficient
+		var p_coefficient: float =\
+		60 * delta * camera_settings.position_coefficient * camera_settings.keys_position_coefficient
+		var r_coefficient: float =\
+		60 * delta * camera_settings.rotation_coefficient * camera_settings.keys_rotation_coefficient
 		
-		desired_position_vector = _inertia_processor.apply_inertion(
-			desired_position_vector,
-			Callable(mouse_cache, "save_mouse_input_position")
-		)
+		desired_position_vector = _inertia_processor.apply_inertion(desired_position_vector)
+		if _inertia_processor.is_inertia():
+			mouse_cache.save_mouse_input_position(desired_position_vector)
 		
 		position = _position_interpolator.interpolate(
 			position,
@@ -109,4 +111,5 @@ func setup_dependencies() -> void:
 	PositionInterpolatorFactory.create(camera_settings.position_interpolator_type)
 	_rotation_interpolator =\
 	RotationInterpolatorFactory.create(camera_settings.rotation_interpolator_type)
-	_inertia_processor = InertiaProcessor.new(inertia_settings)
+	_inertia_processor =\
+	InertiaFactory.create(camera_settings.inertia_processor_type, inertia_settings)
