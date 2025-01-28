@@ -9,8 +9,8 @@ extends Node3D
 @export var vertical_mouse_sensitivity: float = 0.001
 
 @export_group("Mode")
-@export var rotation_interpolation_mode: InterpolationManager.RotationInterpolationMode
-@export var move_interpolation_mode: InterpolationManager.MoveInterpolationMode
+@export var rotation_interpolator_type: RotationInterpolatorFactory.RotationInterpolatorType
+@export var position_interpolator_type: PositionInterpolatorFactory.PositionInterpolatorType
 @export var follow_mode: VectorHandler.FollowMode
 @export var main_remembered_position: VectorHandler.MainRememberedPosition # works only with BOTH follow mode
 
@@ -49,21 +49,18 @@ extends Node3D
 @export var height_offset: float = 10.0
 @export var horizontal_default_rotation: float = -0.5 # not work with LOOK_AT mode and when (unlock_horizontal_rotation_axis = true)
 
-var interpolator: InterpolationManager
 var angles_handler: AnglesHandler
 var vector_handler: VectorHandler
 var inertia: Inertia
 var mouse_cache: MouseCache
+var _position_interpolator: IPositionInterpolator
+var _rotation_interpolator: IRotationInterpolator
 
 func _ready() -> void:
 	assert(target != null, "Choose target node in settings")
 	assert(target.direction != null, "Target node should implement 'direction' field")
 	
-	interpolator = InterpolationManager.new(
-		rotation_interpolation_mode,
-		move_interpolation_mode,
-		unlock_horizontal_rotation_axis
-	)
+	setup_dependencies()
 	
 	mouse_cache = MouseCache.new(
 		horizontal_mouse_sensitivity,
@@ -80,8 +77,6 @@ func _ready() -> void:
 	inertia = Inertia.new($".")
 	vector_handler = VectorHandler.new(target, $".", inertia, mouse_cache)
 	
-	interpolator.set_target(target)
-	interpolator.set_follower($".")
 	setup_default_position()
 	
 	add_child(angles_handler)
@@ -96,11 +91,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		var desired_position_vector: Vector3 = angles_handler.rotated_radius_vector
 		
 		inertia.calculate_inertia_velocity(desired_position_vector)
-		interpolator.interpolate_position(
+
+		position = _position_interpolator.interpolate(
+			position,
 			desired_position_vector,
 			position_coefficient * mouse_position_coefficient
 		)
-		interpolator.interpolate_rotation(rotation_coefficient * mouse_rotation_coefficient)
+		
+		basis = _rotation_interpolator.basis_interpolate(
+			basis,
+			target.global_transform.origin - global_transform.origin,
+			rotation_coefficient * mouse_rotation_coefficient
+		)
 
 func _physics_process(delta: float) -> void:
 	# NOTE
@@ -119,17 +121,34 @@ func _physics_process(delta: float) -> void:
 			mouse_cache.mouse_move_x > 0,
 			Callable(mouse_cache, "save_mouse_input_position")
 		)
-		interpolator.interpolate_position(desired_position_vector, p_coefficient)
-		interpolator.interpolate_rotation(r_coefficient)
+
+		position = _position_interpolator.interpolate(
+			position,
+			desired_position_vector,
+			p_coefficient
+		)
+		
+		basis = _rotation_interpolator.basis_interpolate(
+			basis,
+			target.global_transform.origin - global_transform.origin,
+			r_coefficient
+		)
 
 func setup_default_position() -> void:
 	position.z = distance
 	position.y = height_offset
 	mouse_cache.last_mouse_input_camera_position = position
 	
-	if interpolator.rotation_interpolation_mode !=\
-	InterpolationManager.RotationInterpolationMode.LOOK_AT:
-		
+	if is_instance_of(
+		_rotation_interpolator,
+		RotationInterpolatorFactory.RotationInterpolatorType.LOOK_AT
+	):
 		rotation.x = horizontal_default_rotation
 	else:
 		look_at(target.global_position)
+
+func setup_dependencies() -> void:
+	_position_interpolator =\
+	PositionInterpolatorFactory.create(PositionInterpolatorFactory.PositionInterpolatorType.BEZIER)
+	_rotation_interpolator =\
+	RotationInterpolatorFactory.create(RotationInterpolatorFactory.RotationInterpolatorType.BEZIER)

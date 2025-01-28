@@ -4,7 +4,7 @@ class_name AnglesHandler
 var unlock_horizontal_position_axis: bool
 var min_vertical_angle: float
 var max_vertical_angle: float
-var angles_generator: MouseCache # should be interface, but it gdscript
+var angles_generator: MouseCache # ohh.. i can do interfaces like classes, anyway, all this code will be redisigned
 
 var rotated_radius_vector: Vector3
 
