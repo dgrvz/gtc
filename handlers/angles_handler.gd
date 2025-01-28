@@ -1,31 +1,52 @@
-extends Object
+extends Node
 class_name AnglesHandler
 
-var target_object: Node3D
-var follower_object: Node3D
+var unlock_horizontal_position_axis: bool
+var min_vertical_angle: float
+var max_vertical_angle: float
+var angles_generator: MouseCache # should be interface, but it gdscript
 
-func _init(t_o: Node3D, f_o: Node3D) -> void:
-	target_object = t_o
-	follower_object = f_o
+var rotated_radius_vector: Vector3
 
-func get_rotated_radius_vector(horizontal_radians: float, vertical_radians: float) -> Vector3:
-									
-	var phi: float =\
-	InterpolationManager.point_to_radians(follower_object.position.x, follower_object.position.z)
+func _init(h_axis: bool, min_v_angle: float, max_v_angle: float, m_cache: MouseCache) -> void:
+	unlock_horizontal_position_axis = h_axis
+	min_vertical_angle = min_v_angle
+	max_vertical_angle = max_v_angle
+	angles_generator = m_cache
+
+func calculate_rotated_radius_vector(
+	position_on_sphere: Vector3,
+	radius: float,
+	horizontal_radians: float,
+	vertical_radians: float,
+	height_offset: float = 0
+	) -> Vector3:
 	
-	var theta: float = acos(follower_object.position.y / follower_object.distance)
+	var phi: float = atan2(position_on_sphere.x, position_on_sphere.z)
+	var theta: float = acos(position_on_sphere.y / radius)
 	
-	var x: float = follower_object.distance * sin(phi - horizontal_radians)
-	var y: float = follower_object.height_offset
-	var z: float = follower_object.distance * cos(phi - horizontal_radians)
+	var x: float = radius * sin(phi - horizontal_radians)
+	var y: float = height_offset
+	var z: float = radius * cos(phi - horizontal_radians)
 	
-	if follower_object.unlock_horizontal_position_axis:
+	if unlock_horizontal_position_axis:
 		x *= sin(theta + vertical_radians)
 		y = clamp(
-			follower_object.distance * cos(theta - vertical_radians),
-			follower_object.min_vertical_angle,
-			follower_object.max_vertical_angle
+			radius * cos(theta - vertical_radians),
+			min_vertical_angle,
+			max_vertical_angle
 		)
 		z *= sin(theta + vertical_radians)
 	
 	return Vector3(x, y, z)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		var follower_object = get_parent()
+		rotated_radius_vector = calculate_rotated_radius_vector(
+			follower_object.position,
+			follower_object.distance,
+			angles_generator.mouse_move_x,
+			angles_generator.mouse_move_y,
+			follower_object.height_offset
+		)

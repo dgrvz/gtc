@@ -2,21 +2,18 @@ extends Object
 class_name Inertia
 
 var inertia_velocity: Vector3 = Vector3.ZERO
-
 var follower_object: Node3D
-var mouse_cache: MouseCache
 
-func _init(f_o: Node3D, m_cache: MouseCache) -> void:
+func _init(f_o: Node3D) -> void:
 	follower_object = f_o
-	mouse_cache = m_cache
 
-func apply_inertion(vector: Vector3) -> Vector3:
+func apply_inertion(vector: Vector3, is_positive_angle: bool, callback: Callable) -> Vector3:
 	if follower_object.mouse_inertia and is_inertia():
 		
 		var perpendicular_inertia_velocity: Vector3 =\
 		Vector3(-inertia_velocity.z, 0, inertia_velocity.x)
 		
-		if mouse_cache.mouse_move_x > 0:
+		if is_positive_angle:
 			inertia_velocity += perpendicular_inertia_velocity / follower_object.perpendicular_weight
 		else:
 			inertia_velocity -= perpendicular_inertia_velocity / follower_object.perpendicular_weight
@@ -24,7 +21,7 @@ func apply_inertion(vector: Vector3) -> Vector3:
 		vector += inertia_velocity * follower_object.inertia_strenght
 		inertia_velocity *= follower_object.inertia_damping
 		
-		mouse_cache.store_mouse_input_position(vector)
+		callback.call(vector)
 		
 	return vector
 

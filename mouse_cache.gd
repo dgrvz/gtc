@@ -1,4 +1,4 @@
-extends Object
+extends Node
 class_name MouseCache
 
 var last_mouse_input_camera_position: Vector3 = Vector3.BACK
@@ -15,5 +15,10 @@ func save_mouse_velocity(event: InputEvent) -> void:
 	mouse_move_x = clamp(event.screen_relative.x, -100, 100) * horizontal_mouse_sensitivity
 	mouse_move_y = clamp(event.screen_relative.y, -100, 100) * vertical_mouse_sensitivity
 
-func store_mouse_input_position(pos: Vector3) -> void:
+func save_mouse_input_position(pos: Vector3) -> void:
 	last_mouse_input_camera_position = pos
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		save_mouse_input_position(get_parent().position)
+		save_mouse_velocity(event)

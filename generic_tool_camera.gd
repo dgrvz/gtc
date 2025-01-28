@@ -65,28 +65,36 @@ func _ready() -> void:
 		unlock_horizontal_rotation_axis
 	)
 	
-	angles_handler = AnglesHandler.new(target, $".")
-	mouse_cache = MouseCache.new(horizontal_mouse_sensitivity, vertical_mouse_sensitivity)
-	inertia = Inertia.new($".", mouse_cache)
-	vector_handler = VectorHandler.new(target, $".", inertia)
+	mouse_cache = MouseCache.new(
+		horizontal_mouse_sensitivity,
+		vertical_mouse_sensitivity
+	)
+	
+	angles_handler = AnglesHandler.new(
+		unlock_horizontal_position_axis,
+		min_vertical_angle,
+		max_vertical_angle,
+		mouse_cache
+	)
+	
+	inertia = Inertia.new($".")
+	vector_handler = VectorHandler.new(target, $".", inertia, mouse_cache)
 	
 	interpolator.set_target(target)
 	interpolator.set_follower($".")
 	setup_default_position()
+	
+	add_child(angles_handler)
+	add_child(mouse_cache)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and follow_mode != VectorHandler.FollowMode.DIRECTION_MODE\
 	and (without_key or Input.is_action_pressed(capture_key)):
 		
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		mouse_cache.store_mouse_input_position(position)
-		mouse_cache.save_mouse_velocity(event)
 		
-		var desired_position_vector: Vector3 = angles_handler.get_rotated_radius_vector(
-			mouse_cache.mouse_move_x,
-			mouse_cache.mouse_move_y
-		)
-														
+		var desired_position_vector: Vector3 = angles_handler.rotated_radius_vector
+		
 		inertia.calculate_inertia_velocity(desired_position_vector)
 		interpolator.interpolate_position(
 			desired_position_vector,
@@ -106,7 +114,11 @@ func _physics_process(delta: float) -> void:
 		var p_coefficient: float = 60 * delta * position_coefficient * keys_position_coefficient
 		var r_coefficient: float = 60 * delta * rotation_coefficient * keys_rotation_coefficient
 		
-		desired_position_vector = inertia.apply_inertion(desired_position_vector)
+		desired_position_vector = inertia.apply_inertion(
+			desired_position_vector,
+			mouse_cache.mouse_move_x > 0,
+			Callable(mouse_cache, "save_mouse_input_position")
+		)
 		interpolator.interpolate_position(desired_position_vector, p_coefficient)
 		interpolator.interpolate_rotation(r_coefficient)
 
@@ -117,7 +129,7 @@ func setup_default_position() -> void:
 	
 	if interpolator.rotation_interpolation_mode !=\
 	InterpolationManager.RotationInterpolationMode.LOOK_AT:
-			
+		
 		rotation.x = horizontal_default_rotation
 	else:
 		look_at(target.global_position)

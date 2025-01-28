@@ -14,12 +14,7 @@ var unlock_horizontal_rotation_axis: bool
 var control_1: Variant
 var control_2: Variant
 
-func _init(
-	r_mode: RotationInterpolationMode,
-	m_mode: MoveInterpolationMode,
-	h_axis: bool
-	) -> void:
-	
+func _init(r_mode: RotationInterpolationMode, m_mode: MoveInterpolationMode, h_axis: bool) -> void:
 	rotation_interpolation_mode = r_mode
 	move_interpolation_mode = m_mode
 	unlock_horizontal_rotation_axis = h_axis
@@ -41,14 +36,14 @@ func interpolate_rotation(weight: float) -> void:
 			
 		RotationInterpolationMode.LINEAR_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
-				all_axis_rotate_interpolation("linear", weight)
+				basis_interpolation("linear", weight)
 			else:
 				follower_object.rotation.y =\
 				interpolate("linear", weight, follower_object.rotation.y, get_current_radians())
 		
 		RotationInterpolationMode.BEZIER_INTERPOLATE:
 			if unlock_horizontal_rotation_axis:
-				all_axis_rotate_interpolation("bezier", weight)
+				basis_interpolation("bezier", weight)
 			else:
 				# WARNING BUG
 				# fix "camera panic" when trigonometric circle moves from PI to -PI and vice versa
@@ -72,7 +67,7 @@ func interpolate_rotation(weight: float) -> void:
 				follower_object.rotation.y =\
 				interpolate("bezier", weight, follower_object.rotation.y, get_current_radians())
 
-func all_axis_rotate_interpolation(method: String, weight: float) -> void:
+func basis_interpolation(method: String, weight: float) -> void:
 	var b: Basis = _get_basis_looking_at_target()
 	for v: int in range(3):
 		follower_object.basis[v] = interpolate(method, weight, follower_object.basis[v], b[v])
@@ -129,7 +124,4 @@ func set_follower(follower: Node3D) -> void:
 	follower_object = follower
 
 func get_current_radians() -> float:
-	return point_to_radians(follower_object.position.x, follower_object.position.z)
-
-static func point_to_radians(x: float, y: float) -> float:
-	return atan2(x, y)
+	return atan2(follower_object.position.x, follower_object.position.z)

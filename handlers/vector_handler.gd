@@ -9,11 +9,11 @@ var follower_object: Node3D
 var inertia: Inertia
 var mouse_cache: MouseCache
 
-func _init(t_o: Node3D, f_o: Node3D, i: Inertia) -> void:
+func _init(t_o: Node3D, f_o: Node3D, i: Inertia, m_cache) -> void:
 	target_object = t_o
 	follower_object = f_o
 	inertia = i
-	mouse_cache = inertia.mouse_cache
+	mouse_cache = m_cache
 
 func get_position_from_direction() -> Vector3:
 	if not direction_in_range(follower_object.change_position_trigger)\
