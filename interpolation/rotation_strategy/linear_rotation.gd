@@ -10,13 +10,13 @@ func basis_interpolate(
 	weight: float
 	) -> Basis:
 	
-	var basis_looking_at_target: Basis =\
-	current_basis.looking_at(global_position_from_current_to_target)
+	var basis_looking_at_target: Basis = Basis.looking_at(global_position_from_current_to_target)
+	var new_basis = Basis(current_basis)
 	
 	for v: int in range(3):
-		current_basis[v] = _linear_type_vector3(current_basis[v], basis_looking_at_target[v], weight)
+		new_basis[v] = _linear_type_vector3(current_basis[v], basis_looking_at_target[v], weight)
 	
-	return current_basis
+	return new_basis
 
 func _linear_type_float(start: float, end: float, weight: float) -> float:
 	return lerp_angle(start, end, weight)

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CameraSettings" load_steps=2 format=3 uid="uid://bgaovvh5wegi0"]
+
+[ext_resource type="Script" uid="uid://b110u2bs7b7bs" path="res://gtc/config/camera_settings.gd" id="1_j1eyq"]
+
+[resource]
+script = ExtResource("1_j1eyq")
+horizontal_mouse_sensitivity = 0.01
+vertical_mouse_sensitivity = 0.001
+rotation_interpolator_type = 2
+position_interpolator_type = 1
+follow_mode = 0
+main_remembered_position = 0
+unlock_horizontal_position_axis = true
+unlock_horizontal_rotation_axis = true
+min_vertical_angle = 3.0
+max_vertical_angle = 14.0
+without_key = true
+capture_key = "Mouse_1"
+change_position_trigger = 0.62
+rotation_coefficient = 0.4
+position_coefficient = 0.4
+mouse_rotation_coefficient = 1.0
+mouse_position_coefficient = 0.5
+keys_rotation_coefficient = 1.0
+keys_position_coefficient = 0.5
+distance = 25.0
+height_offset = 10.0
+horizontal_default_rotation = -0.5

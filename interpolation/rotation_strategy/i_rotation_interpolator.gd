@@ -1,5 +1,5 @@
 class_name IRotationInterpolator
-extends Object
+extends RefCounted
 
 func one_axis_interpolate(current_angle: float, target_angle: float, weight: float) -> float:
 	assert(false, "This class is an interface, do not use it in any other way")

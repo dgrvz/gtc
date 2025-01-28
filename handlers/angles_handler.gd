@@ -45,8 +45,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		var follower_object = get_parent()
 		rotated_radius_vector = calculate_rotated_radius_vector(
 			follower_object.position,
-			follower_object.distance,
+			follower_object.camera_settings.distance,
 			angles_generator.mouse_move_x,
 			angles_generator.mouse_move_y,
-			follower_object.height_offset
+			follower_object.camera_settings.height_offset
 		)

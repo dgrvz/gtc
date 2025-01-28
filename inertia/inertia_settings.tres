@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="InertiaSettings" load_steps=2 format=3 uid="uid://biqip1afdujo7"]
+
+[ext_resource type="Script" uid="uid://bqacgo0md7oj0" path="res://gtc/inertia/inertia_settings.gd" id="1_aebw2"]
+
+[resource]
+script = ExtResource("1_aebw2")
+calculate_inertia = true
+inertia_damping = 0.97
+inertia_strenght = 0.8
+perpendicular_weight = 8.0
+minimal_inertia_velocity = 0.1
