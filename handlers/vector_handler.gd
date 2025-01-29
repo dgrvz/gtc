@@ -7,13 +7,11 @@ enum MainRememberedPosition {DIRECTION, USERINPUT}
 var target_object: Node3D
 var follower_object: Node3D
 var inertia: IInertiaProcessor
-var mouse_cache: MouseCache
 
-func _init(t_o: Node3D, f_o: Node3D, i: IInertiaProcessor, m_cache) -> void:
+func _init(t_o: Node3D, f_o: Node3D, i: IInertiaProcessor) -> void:
 	target_object = t_o
 	follower_object = f_o
 	inertia = i
-	mouse_cache = m_cache
 
 func get_position_from_direction() -> Vector3:
 	if not direction_in_range(follower_object.camera_settings.change_position_trigger)\
@@ -29,10 +27,6 @@ func get_position_from_direction() -> Vector3:
 	and follower_object.camera_settings.main_remembered_position == MainRememberedPosition.DIRECTION:
 		
 		return follower_object.position
-	
-	elif not inertia.is_inertia():
-		return mouse_cache.last_mouse_input_camera_position
-		
 	else:
 		return follower_object.position
 

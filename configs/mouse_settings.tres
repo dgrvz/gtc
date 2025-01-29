@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="MouseSettings" load_steps=2 format=3 uid="uid://b5c1di3jsi2nt"]
+
+[ext_resource type="Script" uid="uid://blfdkhs4dq5lp" path="res://gtc/configs/mouse_settings.gd" id="1_leh6e"]
+
+[resource]
+script = ExtResource("1_leh6e")
+horizontal_sensitivity = 0.01
+vertical_sensitivity = 0.001

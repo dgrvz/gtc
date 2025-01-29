@@ -4,13 +4,11 @@
 
 [resource]
 script = ExtResource("1_fkrvy")
-horizontal_mouse_sensitivity = 0.01
-vertical_mouse_sensitivity = 0.001
 rotation_interpolator_type = "bezier"
 position_interpolator_type = "bezier"
 inertia_processor_type = "spiral"
 follow_mode = 0
-main_remembered_position = 1
+main_remembered_position = 0
 unlock_horizontal_position_axis = true
 unlock_horizontal_rotation_axis = true
 min_vertical_angle = 3.0

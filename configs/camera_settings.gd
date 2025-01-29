@@ -1,9 +1,6 @@
 class_name CameraSettings
 extends Resource
 
-@export var horizontal_mouse_sensitivity: float = 0.001
-@export var vertical_mouse_sensitivity: float = 0.001
-
 @export_group("Mode")
 @export var rotation_interpolator_type: String = "linear"
 @export var position_interpolator_type: String = "linear"
