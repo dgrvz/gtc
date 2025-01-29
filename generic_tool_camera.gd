@@ -5,8 +5,8 @@ extends Node3D
 # x, y, z should be in range from 0 to 1, but it not necessarily
 
 @export var target: Node3D
-@export var camera_settings: Resource
-@export var inertia_settings: Resource
+@export var camera_settings: CameraSettings
+@export var inertia_settings: InertiaSettings
 
 var angles_handler: AnglesHandler
 var vector_handler: VectorHandler
@@ -98,18 +98,20 @@ func setup_default_position() -> void:
 	position.y = camera_settings.height_offset
 	mouse_cache.last_mouse_input_camera_position = position
 	
-	if is_instance_of(
+	if not is_instance_of(
 		_rotation_interpolator,
-		RotationInterpolatorFactory.RotationInterpolatorType.LOOK_AT
+		LookAtRotationInterpolator
 	):
 		rotation.x = camera_settings.horizontal_default_rotation
 	else:
 		look_at(target.global_position)
 
 func setup_dependencies() -> void:
+	TypeRegistrationSystem.initialize_types()
+	
 	_position_interpolator =\
 	PositionInterpolatorFactory.create(camera_settings.position_interpolator_type)
 	_rotation_interpolator =\
 	RotationInterpolatorFactory.create(camera_settings.rotation_interpolator_type)
 	_inertia_processor =\
-	InertiaFactory.create(camera_settings.inertia_processor_type, inertia_settings)
+	InertiaFactory.set_settings(inertia_settings).create(camera_settings.inertia_processor_type)

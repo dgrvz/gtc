@@ -1,16 +1,16 @@
 [gd_resource type="Resource" script_class="CameraSettings" load_steps=2 format=3 uid="uid://bgaovvh5wegi0"]
 
-[ext_resource type="Script" uid="uid://b110u2bs7b7bs" path="res://gtc/config/camera_settings.gd" id="1_j1eyq"]
+[ext_resource type="Script" uid="uid://b110u2bs7b7bs" path="res://gtc/configs/camera_settings.gd" id="1_fkrvy"]
 
 [resource]
-script = ExtResource("1_j1eyq")
+script = ExtResource("1_fkrvy")
 horizontal_mouse_sensitivity = 0.01
 vertical_mouse_sensitivity = 0.001
-rotation_interpolator_type = 2
-position_interpolator_type = 1
+rotation_interpolator_type = "bezier"
+position_interpolator_type = "bezier"
+inertia_processor_type = "spiral"
 follow_mode = 0
 main_remembered_position = 1
-inertia_processor_type = 1
 unlock_horizontal_position_axis = true
 unlock_horizontal_rotation_axis = true
 min_vertical_angle = 3.0
