@@ -1,9 +1,10 @@
-class_name ThirdPersonHandler
+class_name SphericalHandler
 extends IMouseInputHandler
 
 var mouse_move_x: float = 0.0
 var mouse_move_y: float = 0.0
 var target: TargetComponent
+var radius: float
 
 func handle_mouse_input(event: InputEvent) -> void:
 	mouse_move_x = clamp(event.screen_relative.x, -100, 100) * mouse_settings.horizontal_sensitivity
@@ -11,7 +12,6 @@ func handle_mouse_input(event: InputEvent) -> void:
 
 func get_transformed(transform: TransformComponent) -> Vector3:
 	var position = transform.get_position()
-	var radius = 25#(target.get_position() - position).length()
 	return Trigonometry.move_spherical_radius_vector(
 		position,
 		radius,
@@ -39,6 +39,10 @@ func transform(
 		)
 	)
 
-func set_target(t: TargetComponent) -> ThirdPersonHandler:
+func set_target(t: TargetComponent) -> SphericalHandler:
 	target = t
+	return self
+
+func set_radius(r: float) -> SphericalHandler:
+	radius = r
 	return self

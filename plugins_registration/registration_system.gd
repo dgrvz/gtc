@@ -14,11 +14,13 @@ func initialize_builtin_types() -> void:
 	register_factory("position_interpolator_factory", PositionInterpolatorFactory.new())
 	register_factory("rotation_interpolator_factory", RotationInterpolatorFactory.new())
 	register_factory("mouse_input_handler_factory", MouseInputHandlerFactory.new())
+	register_factory("vector_input_handler_factory", VectorInputHandlerFactory.new())
 	
 	_register_inertia_implementations()
 	_register_position_interpolator_implementations()
 	_register_rotation_interpolator_implementations()
 	_register_mouse_input_handler_implementations()
+	_register_vector_input_handler_implementations()
 
 func _register_inertia_implementations() -> void:
 	get_factory("inertia_factory").register("null", NullInertiaProcessor.new)
@@ -34,4 +36,7 @@ func _register_rotation_interpolator_implementations() -> void:
 	get_factory("rotation_interpolator_factory").register("bezier", BezierRotationInterpolator.new)
 
 func _register_mouse_input_handler_implementations() -> void:
-	get_factory("mouse_input_handler_factory").register("third_person_handler", ThirdPersonHandler.new)
+	get_factory("mouse_input_handler_factory").register("spherical_handler", SphericalHandler.new)
+
+func _register_vector_input_handler_implementations() -> void:
+	get_factory("vector_input_handler_factory").register("third_person_follower", ThirdPersonFollower.new)

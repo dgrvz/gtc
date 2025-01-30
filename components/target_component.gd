@@ -23,3 +23,9 @@ func get_basis() -> Basis:
 
 func set_basis(b: Basis) -> void:
 	target.basis = b
+
+func get_direction() -> Vector3:
+	return target.direction
+
+func set_direction(d: Vector3) -> void:
+	target.direction = d

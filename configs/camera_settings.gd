@@ -5,8 +5,6 @@ extends Resource
 @export var rotation_interpolator_type: String = "linear"
 @export var position_interpolator_type: String = "linear"
 @export var inertia_processor_type: String = "spiral"
-@export var follow_mode: VectorHandler.FollowMode
-@export var main_remembered_position: VectorHandler.MainRememberedPosition # works only with BOTH follow mode
 
 @export_subgroup("Horizontal axis")
 @export var unlock_horizontal_position_axis: bool = false
