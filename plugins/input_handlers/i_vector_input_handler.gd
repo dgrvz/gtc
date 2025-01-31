@@ -8,6 +8,7 @@ func get_transformed(transform: TransformComponent) -> Vector3:
 func transform(
 	transform: TransformComponent,
 	position_interpolator: IPositionInterpolator,
-	rotation_interpolator: IRotationInterpolator
+	rotation_interpolator: IRotationInterpolator,
+	inertia_processor: IInertiaProcessor
 	) -> void:
 	assert(false, "This class is an interface, do not use it in any other way")

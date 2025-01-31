@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_fkrvy")
-rotation_interpolator_type = "bezier"
+rotation_interpolator_type = "look_at"
 position_interpolator_type = "bezier"
-inertia_processor_type = "null"
+inertia_processor_type = "spiral"
 unlock_horizontal_position_axis = true
 unlock_horizontal_rotation_axis = true
 min_vertical_angle = 3.0

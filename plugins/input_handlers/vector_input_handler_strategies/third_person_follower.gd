@@ -24,9 +24,11 @@ func transform(
 	transform: TransformComponent,
 	position_interpolator: IPositionInterpolator,
 	rotation_interpolator: IRotationInterpolator,
+	inertia_processor: IInertiaProcessor
 	) -> void:
 	
 	var new_position: Vector3 = get_transformed(transform)
+	new_position = inertia_processor.apply_inertion(new_position)
 	transform.set_position(
 		position_interpolator.interpolate(
 			transform.get_position(),
@@ -36,7 +38,7 @@ func transform(
 	transform.set_basis(
 		rotation_interpolator.basis_interpolate(
 			transform.get_basis(),
-			target.get_position() - transform.get_position()
+			target.get_global_position() - transform.get_global_position()
 		)
 	)
 

@@ -12,6 +12,12 @@ func get_position() -> Vector3:
 func set_position(pos: Vector3) -> void:
 	camera.position = pos
 
+func get_global_position() -> Vector3:
+	return camera.global_position
+
+func set_global_position(pos: Vector3) -> void:
+	camera.global_position  = pos
+
 func get_rotation() -> Vector3:
 	return camera.rotation
 

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_03haa")
-inertia_damping = 0.95
-inertia_strenght = 0.4
-perpendicular_weight = 1024.0
+inertia_damping = 0.93
+inertia_strenght = 0.3
+perpendicular_weight = 3.0
 minimal_inertia_velocity = 0.1

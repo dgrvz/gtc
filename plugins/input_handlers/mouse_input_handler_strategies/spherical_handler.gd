@@ -12,6 +12,8 @@ func handle_mouse_input(event: InputEvent) -> void:
 
 func get_transformed(transform: TransformComponent) -> Vector3:
 	var position = transform.get_position()
+	mouse_move_x = lerp(mouse_move_x, 0.0, 0.1)
+	mouse_move_y = lerp(mouse_move_y, 0.0, 0.1)
 	return Trigonometry.move_spherical_radius_vector(
 		position,
 		radius,
@@ -23,9 +25,11 @@ func transform(
 	transform: TransformComponent,
 	position_interpolator: IPositionInterpolator,
 	rotation_interpolator: IRotationInterpolator,
+	inertia_processor: IInertiaProcessor
 	) -> void:
 	
 	var new_position: Vector3 = get_transformed(transform)
+	new_position = inertia_processor.apply_inertion(new_position)
 	transform.set_position(
 		position_interpolator.interpolate(
 			transform.get_position(),
@@ -35,7 +39,7 @@ func transform(
 	transform.set_basis(
 		rotation_interpolator.basis_interpolate(
 			transform.get_basis(),
-			target.get_position() - transform.get_position()
+			target.get_global_position() - transform.get_global_position()
 		)
 	)
 
