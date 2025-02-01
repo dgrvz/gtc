@@ -1,14 +1,18 @@
 extends Camera3D
 
+@export var camera_settings: CameraSettings
+@export var inertia_settings: InertiaSettings
+@export var mouse_settings: MouseSettings
+
 var camera: GTCamera
 
 func _ready() -> void:
-	camera = GTCBuilder.new().set_transform_component(
-		TransformComponent.new($".")
+	camera = GTCBuilder.new(camera_settings, inertia_settings, mouse_settings).set_transform_component(
+		EntityWrapper.new($".")
 	).set_target_component(
-		TargetComponent.new($"..")
+		EntityWrapper.new($"..")
 	).set_inertia_processor(
-		"null"
+		"spiral"
 	).set_mouse_input_handler(
 		"spherical_handler"
 	).set_position_interpolator(

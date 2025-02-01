@@ -1,5 +1,5 @@
 class_name Trigonometry
-extends Object
+extends RefCounted
 
 static func move_circle_radius_vector(
 	position_on_circle: Vector2,

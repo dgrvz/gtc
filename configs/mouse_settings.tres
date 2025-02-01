@@ -6,3 +6,4 @@
 script = ExtResource("1_leh6e")
 horizontal_sensitivity = 0.01
 vertical_sensitivity = 0.001
+move_damping = 0.1

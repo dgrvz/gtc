@@ -1,5 +1,5 @@
 class_name IFactory
-extends Object
+extends RefCounted
 
 func register(type_id: String, constructor: Callable) -> void:
 	assert(false, "This class is an interface, do not use it in any other way")

@@ -1,5 +1,5 @@
 class_name RegistrationSystem
-extends Object
+extends RefCounted
 
 static var types = {}
 

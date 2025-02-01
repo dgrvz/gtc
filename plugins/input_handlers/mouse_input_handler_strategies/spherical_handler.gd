@@ -3,17 +3,17 @@ extends IMouseInputHandler
 
 var mouse_move_x: float = 0.0
 var mouse_move_y: float = 0.0
-var target: TargetComponent
+var target: EntityWrapper
 var radius: float
 
 func handle_mouse_input(event: InputEvent) -> void:
 	mouse_move_x = clamp(event.screen_relative.x, -100, 100) * mouse_settings.horizontal_sensitivity
 	mouse_move_y = clamp(event.screen_relative.y, -100, 100) * mouse_settings.vertical_sensitivity
 
-func get_transformed(transform: TransformComponent) -> Vector3:
+func get_transformed(transform: EntityWrapper) -> Vector3:
 	var position = transform.get_position()
-	mouse_move_x = lerp(mouse_move_x, 0.0, 0.1)
-	mouse_move_y = lerp(mouse_move_y, 0.0, 0.1)
+	mouse_move_x = lerp(mouse_move_x, 0.0, mouse_settings.move_damping)
+	mouse_move_y = lerp(mouse_move_y, 0.0, mouse_settings.move_damping)
 	return Trigonometry.move_spherical_radius_vector(
 		position,
 		radius,
@@ -22,7 +22,7 @@ func get_transformed(transform: TransformComponent) -> Vector3:
 	)
 
 func transform(
-	transform: TransformComponent,
+	transform: EntityWrapper,
 	position_interpolator: IPositionInterpolator,
 	rotation_interpolator: IRotationInterpolator,
 	inertia_processor: IInertiaProcessor
@@ -43,7 +43,7 @@ func transform(
 		)
 	)
 
-func set_target(t: TargetComponent) -> SphericalHandler:
+func set_target(t: EntityWrapper) -> SphericalHandler:
 	target = t
 	return self
 

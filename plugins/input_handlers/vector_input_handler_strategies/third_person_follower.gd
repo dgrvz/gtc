@@ -1,12 +1,12 @@
 class_name ThirdPersonFollower
 extends IVectorInputHandler
 
-var target: TargetComponent
+var target: EntityWrapper
 var trigger: float
 var radius: float
 var height_offset: float
 
-func get_transformed(transform: TransformComponent) -> Vector3:
+func get_transformed(transform: EntityWrapper) -> Vector3:
 	if not _direction_in_range():
 			
 		return Vector3(
@@ -21,7 +21,7 @@ func get_transformed(transform: TransformComponent) -> Vector3:
 		return transform.get_position()
 
 func transform(
-	transform: TransformComponent,
+	transform: EntityWrapper,
 	position_interpolator: IPositionInterpolator,
 	rotation_interpolator: IRotationInterpolator,
 	inertia_processor: IInertiaProcessor
@@ -47,7 +47,7 @@ func _direction_in_range() -> bool:
 	and abs(target.get_direction().y) < trigger\
 	and abs(target.get_direction().z) < trigger
 
-func set_target(t: TargetComponent) -> ThirdPersonFollower:
+func set_target(t: EntityWrapper) -> ThirdPersonFollower:
 	target = t
 	return self
 	

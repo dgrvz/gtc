@@ -1,5 +1,5 @@
 class_name IState
-extends Object
+extends RefCounted
 
 var GTC: GTCamera
 

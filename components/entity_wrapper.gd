@@ -1,37 +1,37 @@
-class_name TargetComponent
-extends Object
+class_name EntityWrapper
+extends RefCounted
 
-var target: Node3D
+var entity: Node3D
 
 func _init(node: Node3D) -> void:
-	target = node
+	entity = node
 
 func get_position() -> Vector3:
-	return target.position
+	return entity.position
 
 func set_position(pos: Vector3) -> void:
-	target.position = pos
+	entity.position = pos
 
 func get_global_position() -> Vector3:
-	return target.global_position
+	return entity.global_position
 
 func set_global_position(pos: Vector3) -> void:
-	target.global_position  = pos
+	entity.global_position  = pos
 
 func get_rotation() -> Vector3:
-	return target.rotation
+	return entity.rotation
 
 func set_rotation(rot: Vector3) -> void:
-	target.rotation = rot
+	entity.rotation = rot
 
 func get_basis() -> Basis:
-	return target.basis
+	return entity.basis
 
 func set_basis(b: Basis) -> void:
-	target.basis = b
+	entity.basis = b
 
 func get_direction() -> Vector3:
-	return target.direction
+	return entity.direction
 
 func set_direction(d: Vector3) -> void:
-	target.direction = d
+	entity.direction = d
